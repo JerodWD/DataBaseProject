@@ -22,13 +22,14 @@ public class insertNew {
 				//establish connection to database
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "rr185257");   // For MySQL only
+						"root", "root");   // For MySQL only
 				//create statement object
 				Statement stmt = conn.createStatement();
 				){
 			
 			// set up the labels to prompt the user
 			JFrame addData = new JFrame("Insert New " + objRunner.currentTable);
+			addData.getContentPane().setLayout(null);
 			addData.setSize(1400, 800);	// set size of frame
 			addData.setLocation(100,200);
 			addData.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
