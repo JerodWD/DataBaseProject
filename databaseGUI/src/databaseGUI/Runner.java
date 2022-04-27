@@ -231,15 +231,6 @@ public class Runner {
 			}
 		});
 
-		//WIP
-		refresh.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-
-				//updates the window
-				
-			}
-		});
-
 		add.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				
