@@ -16,8 +16,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextField;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.table.JTableHeader;
 
 import java.sql.*;
@@ -27,7 +25,7 @@ public class Runner {
 	public static JFrame secondWindow;
 	public static JPanel textPanel;
 	public static JTable dataTable;
-
+	private static Component frame = null;
 	public static void main(String[] args) {
 
 
@@ -46,30 +44,23 @@ public class Runner {
 		JButton flightAtt = new JButton("Flight Attendants");
 		JButton captain = new JButton("Captain");
 
-
-
-
-
-
-
-		customer.setBounds(1000, 0, 200, 50);
+		//sets the bounds for the buttons and adds them to the main window
+		customer.setBounds(500, 0, 200, 50);
 		mainWindow.add(customer);
-		plane.setBounds(1000,50,200,50);
+		plane.setBounds(500,50,200,50);
 		mainWindow.add(plane);
-		flight.setBounds(1000,100, 200, 50);
+		flight.setBounds(500,100, 200, 50);
 		mainWindow.add(flight);
-		route.setBounds(1000,150, 200, 50);
+		route.setBounds(500,150, 200, 50);
 		mainWindow.add(route);
-		airport.setBounds(1000,200, 200, 50);
+		airport.setBounds(500,200, 200, 50);
 		mainWindow.add(airport);
-		flightAtt.setBounds(1000,250, 200, 50);
+		flightAtt.setBounds(500,250, 200, 50);
 		mainWindow.add(flightAtt);
-		captain.setBounds(1000,300, 200, 50);
+		captain.setBounds(500,300, 200, 50);
 		mainWindow.add(captain);
 
 
-		JTextField test = new JTextField();
-		test.setBounds(5,15,150,20);
 		JLabel emptyLabel = new JLabel();
 
 		//defaults to closing program when window is closed
@@ -77,7 +68,7 @@ public class Runner {
 
 		//adding components to mainWindow
 		mainWindow.getContentPane().add(emptyLabel, BorderLayout.CENTER);
-		mainWindow.getContentPane().add(test, BorderLayout.SOUTH);
+
 
 		//window size and design
 		mainWindow.setVisible(true);
@@ -98,7 +89,6 @@ public class Runner {
 		//creates buttons for secondary window
 		JButton back = new JButton("Back");
 		JButton add = new JButton("Insert Data");
-		JButton refresh = new JButton ("Refresh Table");
 		JButton remove = new JButton ("Remove Data");
 		//add buttons to second window and sets their position and size
 
@@ -108,15 +98,13 @@ public class Runner {
 		add.setBounds(1000,50,200,50);
 		secondWindow.add(remove);
 		remove.setBounds(1000,100, 200, 50);
-		secondWindow.add(refresh);
-		refresh.setBounds(1000,150,200,50);
 		//adding components to secondWindow
 		secondWindow.getContentPane().add(emptyLabel, BorderLayout.CENTER);
 
 
 		//Checks mainWindow button presses, assigns currentTable string to whatever table is currently open
 
-	
+
 		customer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//removes the main window from the screen
@@ -233,54 +221,56 @@ public class Runner {
 
 		add.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				
+
 				secondWindow.setVisible(false);
 				//insertData();
 				insertNew.insertNewData();
 				//mainWindow.setVisible(true);
 			}
 		});
-		
+
 		remove.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
-				//removes the main window from the screen
+
+				//Connects to the database and removes the record depending on primary key input
 				try (
-					Connection conn = DriverManager.getConnection(
-							"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-							"root", "12345678");   // For MySQL only
-					Statement stmt = conn.createStatement();
-				){
-					String updatedData = (String)JOptionPane.showInputDialog("Enter the ID to remove:  ");
-					String id = null;
-					
-					if(currentTable.equals("CUSTOMER")) {
-						id = "CUST_ID";
-					}else if(currentTable.equals("Plane")) {
-						id = "PLANE_ID";
-					}else if(currentTable.equals("Flight")) {
-						id = "FLIGHT_NUM";
-					}else if(currentTable.equals("Route")) {
-						id = "ROUTE_ID";
-					}else if(currentTable.equals("Airport")) {
-						id = "PORT_ID";
-					}else if(currentTable.equals("Flight_attendant")) {
-						id = "ATT_ID";
-					}else if(currentTable.equals("Captain")) {
-						id = "CAP_ID";
-					}
-					 
-					String sqlDelete = "delete from " + currentTable + " where "+ id + "=" +updatedData;
-			         System.out.println("The SQL statement is: " + sqlDelete + "\n");  // Echo for debugging
-			         int countDeleted = stmt.executeUpdate(sqlDelete);
-			         System.out.println(countDeleted + " records deleted.\n");
-			       
-			         
+						Connection conn = DriverManager.getConnection(
+								"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
+								"root", "root");   // For MySQL only
+						Statement stmt = conn.createStatement();
+						){	String updatedData;
+						updatedData = (String)JOptionPane.showInputDialog("Enter the ID to remove:  ");
+						String id = null;
+
+						if(updatedData != null) {
+							if(currentTable.equals("CUSTOMER")) {
+								id = "CUST_ID";
+							}else if(currentTable.equals("Plane")) {
+								id = "PLANE_ID";
+							}else if(currentTable.equals("Flight")) {
+								id = "FLIGHT_NUM";
+							}else if(currentTable.equals("Route")) {
+								id = "ROUTE_ID";
+							}else if(currentTable.equals("Airport")) {
+								id = "PORT_ID";
+							}else if(currentTable.equals("Flight_attendant")) {
+								id = "ATT_ID";
+							}else if(currentTable.equals("Captain")) {
+								id = "CAP_ID";
+							}
+
+							String sqlDelete = "delete from " + currentTable + " where "+ id + "=" +updatedData;
+							System.out.println("The SQL statement is: " + sqlDelete + "\n");  // Echo for debugging
+							int countDeleted = stmt.executeUpdate(sqlDelete);
+							JOptionPane.showMessageDialog(frame, countDeleted + " records deleted.");
+						}
+						//catch checks for inconsistency errors, and prints out an error menu if so.
 				}catch(Exception ex) {
-					ex.printStackTrace();
+					JOptionPane.showMessageDialog(frame, "ERROR:  DELETION OF RECORD WILL CAUSE DATA INCONSISTENCY", "Data Inconsistency Error", JOptionPane.ERROR_MESSAGE);
 				}
 			}
 		});
-		
+
 		back.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//closes table window
@@ -302,7 +292,7 @@ public class Runner {
 		});
 
 	}
-	
+
 
 	//gets all rows of 'currentTable'
 	public static int getRows() {
@@ -311,7 +301,7 @@ public class Runner {
 				// Step 1: Construct a database 'Connection' object called 'conn'
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "12345678");   // For MySQL only
+						"root", "root");   // For MySQL only
 
 
 
@@ -342,7 +332,7 @@ public class Runner {
 
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "12345678");   // For MySQL only
+						"root", "root");   // For MySQL only
 
 				Statement stmt = conn.createStatement();
 				) {
@@ -370,7 +360,7 @@ public class Runner {
 				//establish connection to database
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "12345678");   // For MySQL only
+						"root", "root");   // For MySQL only
 				//create statement object
 				Statement stmt = conn.createStatement();
 				) {
@@ -403,7 +393,7 @@ public class Runner {
 		try (
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "12345678");   // For MySQL only
+						"root", "root");   // For MySQL only
 				Statement stmt = conn.createStatement();
 				) {
 
@@ -442,7 +432,7 @@ public class Runner {
 		}
 	}
 
-	
+
 
 	//method prints out all data of a table based on the value 'currentTable'
 	public static void printData() {
@@ -484,7 +474,7 @@ public class Runner {
 							try (
 									Connection conn = DriverManager.getConnection(
 											"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-											"root", "12345678");   // For MySQL only
+											"root", "root");   // For MySQL only
 									Statement stmt = conn.createStatement();
 									) {
 
@@ -493,8 +483,6 @@ public class Runner {
 
 								if(updatedData != null) {
 									String strSelect = "update " + currentTable + " set " + currentColumn + " = '" + updatedData + "' where " + primaryColumn + " = " + currentPrimary;
-
-									Component frame = null;
 
 									//try catch that checks for incorrect data inputs for updated data and catches data inconsistency errors if a user
 									//attempts to update a foreign key that is being used by something else
