@@ -114,9 +114,9 @@ public class Runner {
 		secondWindow.getContentPane().add(emptyLabel, BorderLayout.CENTER);
 
 
-
 		//Checks mainWindow button presses, assigns currentTable string to whatever table is currently open
 
+	
 		customer.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//removes the main window from the screen
@@ -241,6 +241,46 @@ public class Runner {
 			}
 		});
 		
+		remove.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				//removes the main window from the screen
+				try (
+					Connection conn = DriverManager.getConnection(
+							"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
+							"root", "12345678");   // For MySQL only
+					Statement stmt = conn.createStatement();
+				){
+					String updatedData = (String)JOptionPane.showInputDialog("Enter the ID to remove:  ");
+					String id = null;
+					
+					if(currentTable.equals("CUSTOMER")) {
+						id = "CUST_ID";
+					}else if(currentTable.equals("Plane")) {
+						id = "PLANE_ID";
+					}else if(currentTable.equals("Flight")) {
+						id = "FLIGHT_NUM";
+					}else if(currentTable.equals("Route")) {
+						id = "ROUTE_ID";
+					}else if(currentTable.equals("Airport")) {
+						id = "PORT_ID";
+					}else if(currentTable.equals("Flight_attendant")) {
+						id = "ATT_ID";
+					}else if(currentTable.equals("Captain")) {
+						id = "CAP_ID";
+					}
+					 
+					String sqlDelete = "delete from " + currentTable + " where "+ id + "=" +updatedData;
+			         System.out.println("The SQL statement is: " + sqlDelete + "\n");  // Echo for debugging
+			         int countDeleted = stmt.executeUpdate(sqlDelete);
+			         System.out.println(countDeleted + " records deleted.\n");
+			       
+			         
+				}catch(Exception ex) {
+					ex.printStackTrace();
+				}
+			}
+		});
+		
 		back.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent arg0) {
 				//closes table window
@@ -262,6 +302,7 @@ public class Runner {
 		});
 
 	}
+	
 
 	//gets all rows of 'currentTable'
 	public static int getRows() {
@@ -270,7 +311,7 @@ public class Runner {
 				// Step 1: Construct a database 'Connection' object called 'conn'
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "root");   // For MySQL only
+						"root", "12345678");   // For MySQL only
 
 
 
@@ -301,7 +342,7 @@ public class Runner {
 
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "root");   // For MySQL only
+						"root", "12345678");   // For MySQL only
 
 				Statement stmt = conn.createStatement();
 				) {
@@ -329,7 +370,7 @@ public class Runner {
 				//establish connection to database
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "root");   // For MySQL only
+						"root", "12345678");   // For MySQL only
 				//create statement object
 				Statement stmt = conn.createStatement();
 				) {
@@ -362,7 +403,7 @@ public class Runner {
 		try (
 				Connection conn = DriverManager.getConnection(
 						"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-						"root", "root");   // For MySQL only
+						"root", "12345678");   // For MySQL only
 				Statement stmt = conn.createStatement();
 				) {
 
@@ -401,6 +442,7 @@ public class Runner {
 		}
 	}
 
+	
 
 	//method prints out all data of a table based on the value 'currentTable'
 	public static void printData() {
@@ -442,7 +484,7 @@ public class Runner {
 							try (
 									Connection conn = DriverManager.getConnection(
 											"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-											"root", "root");   // For MySQL only
+											"root", "12345678");   // For MySQL only
 									Statement stmt = conn.createStatement();
 									) {
 
