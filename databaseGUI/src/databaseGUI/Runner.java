@@ -90,6 +90,7 @@ public class Runner {
 		JButton back = new JButton("Back");
 		JButton add = new JButton("Insert Data");
 		JButton remove = new JButton ("Remove Data");
+		JButton refresh = new JButton ("Refresh Data");
 		//add buttons to second window and sets their position and size
 
 		secondWindow.add(back);
@@ -98,6 +99,8 @@ public class Runner {
 		add.setBounds(1000,50,200,50);
 		secondWindow.add(remove);
 		remove.setBounds(1000,100, 200, 50);
+		secondWindow.add(refresh);
+		refresh.setBounds(1000,150,200,50);
 		//adding components to secondWindow
 		secondWindow.getContentPane().add(emptyLabel, BorderLayout.CENTER);
 
@@ -226,6 +229,19 @@ public class Runner {
 				//insertData();
 				insertNew.insertNewData();
 				//mainWindow.setVisible(true);
+			}
+		});
+		
+		refresh.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent arg0) {
+				
+				//removes the current table
+				textPanel.removeAll();
+				//assigns the new database values to the table
+				printData();
+				//updates the window
+				secondWindow.revalidate();
+				secondWindow.repaint();
 			}
 		});
 
@@ -433,6 +449,75 @@ public class Runner {
 	}
 
 
+	public static void updateData() {
+		String columnNames[] = getColumnNames(getColumns());
+		dataTable.addMouseListener(new MouseAdapter() {
+			public void mouseClicked(MouseEvent me) {
+				if (me.getClickCount() == 2) {     // to detect double click events
+					JTable target = (JTable)me.getSource();
+					int row = target.getSelectedRow(); // select a row
+					int column = target.getSelectedColumn(); // select a column
+
+					//add a way to pop up a text box that asks user for new data to input into box
+					//run a try catch to try to add data to database, return an "ERROR:  INCORRECT FORMAT" if it doesn't work
+
+					String primaryColumn = columnNames[0];
+					String currentColumn = columnNames[column];
+					String currentPrimary = (String) dataTable.getValueAt(row, 0);
+					String currentData = (String) dataTable.getValueAt(row, column);
+
+					String updatedData = (String)JOptionPane.showInputDialog("Enter data to update to:  "); // get the value of a row and column.
+
+					if(currentData != null)
+						try (
+								Connection conn = DriverManager.getConnection(
+										"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
+										"root", "root");   // For MySQL only
+								Statement stmt = conn.createStatement();
+								) {
+
+							DatabaseMetaData metaData = conn.getMetaData();
+							ResultSet pkCheck = metaData.getPrimaryKeys(null, null, currentTable);
+
+							if(updatedData != null) {
+								String strSelect = "update " + currentTable + " set " + currentColumn + " = '" + updatedData + "' where " + primaryColumn + " = " + currentPrimary;
+
+								//try catch that checks for incorrect data inputs for updated data and catches data inconsistency errors if a user
+								//attempts to update a foreign key that is being used by something else
+								try {
+									//checks for a PK value
+									if(pkCheck.next()){
+										//if a PK value exists, check to see if the current selected column is the PK column
+										if(currentColumn.equals(pkCheck.getString("COLUMN_NAME"))) {
+											//if so, inform user PK's can't be updated in this program
+											JOptionPane.showMessageDialog(frame, "ERROR:  CANNOT EDIT PRIMARY KEYS.", "Inane error", JOptionPane.ERROR_MESSAGE);
+										}
+										else {
+											//if current table isn't a primary key, run the update query
+											stmt.executeUpdate(strSelect);
+										}
+									}
+								}
+								//checks if data inputed is the correct format for database
+								catch(DataTruncation e) {
+									JOptionPane.showMessageDialog(frame, "ERROR:  INCORRECT DATA FORMAT.", "Inane error", JOptionPane.ERROR_MESSAGE);
+								}
+								//checks to see if attempted edit of data is a foreign key
+								catch(SQLException e) {
+									if( e instanceof SQLIntegrityConstraintViolationException) {
+										JOptionPane.showMessageDialog(frame, "ERROR:  CANNOT EDIT FOREIGN KEYS.", "Inane error", JOptionPane.ERROR_MESSAGE);
+									}
+								}
+							}
+						} catch(SQLException ex) {
+							ex.printStackTrace();
+						}
+				}
+
+			}
+		});
+	}
+	
 
 	//method prints out all data of a table based on the value 'currentTable'
 	public static void printData() {
@@ -452,72 +537,8 @@ public class Runner {
 			};
 
 			dataTable.setFocusable(false);
-
-			dataTable.addMouseListener(new MouseAdapter() {
-				public void mouseClicked(MouseEvent me) {
-					if (me.getClickCount() == 2) {     // to detect double click events
-						JTable target = (JTable)me.getSource();
-						int row = target.getSelectedRow(); // select a row
-						int column = target.getSelectedColumn(); // select a column
-
-						//add a way to pop up a text box that asks user for new data to input into box
-						//run a try catch to try to add data to database, return an "ERROR:  INCORRECT FORMAT" if it doesn't work
-
-						String primaryColumn = columnNames[0];
-						String currentColumn = columnNames[column];
-						String currentPrimary = (String) dataTable.getValueAt(row, 0);
-						String currentData = (String) dataTable.getValueAt(row, column);
-
-						String updatedData = (String)JOptionPane.showInputDialog("Enter data to update to:  "); // get the value of a row and column.
-
-						if(currentData != null)
-							try (
-									Connection conn = DriverManager.getConnection(
-											"jdbc:mysql://localhost:3306/flight manager?allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC",
-											"root", "root");   // For MySQL only
-									Statement stmt = conn.createStatement();
-									) {
-
-								DatabaseMetaData metaData = conn.getMetaData();
-								ResultSet pkCheck = metaData.getPrimaryKeys(null, null, currentTable);
-
-								if(updatedData != null) {
-									String strSelect = "update " + currentTable + " set " + currentColumn + " = '" + updatedData + "' where " + primaryColumn + " = " + currentPrimary;
-
-									//try catch that checks for incorrect data inputs for updated data and catches data inconsistency errors if a user
-									//attempts to update a foreign key that is being used by something else
-									try {
-										//checks for a PK value
-										if(pkCheck.next()){
-											//if a PK value exists, check to see if the current selected column is the PK column
-											if(currentColumn.equals(pkCheck.getString("COLUMN_NAME"))) {
-												//if so, inform user PK's can't be updated in this program
-												JOptionPane.showMessageDialog(frame, "ERROR:  CANNOT EDIT PRIMARY KEYS.", "Inane error", JOptionPane.ERROR_MESSAGE);
-											}
-											else {
-												//if current table isn't a primary key, run the update query
-												stmt.executeUpdate(strSelect);
-											}
-										}
-									}
-									//checks if data inputed is the correct format for database
-									catch(DataTruncation e) {
-										JOptionPane.showMessageDialog(frame, "ERROR:  INCORRECT DATA FORMAT.", "Inane error", JOptionPane.ERROR_MESSAGE);
-									}
-									//checks to see if attempted edit of data is a foreign key
-									catch(SQLException e) {
-										if( e instanceof SQLIntegrityConstraintViolationException) {
-											JOptionPane.showMessageDialog(frame, "ERROR:  CANNOT EDIT FOREIGN KEYS.", "Inane error", JOptionPane.ERROR_MESSAGE);
-										}
-									}
-								}
-							} catch(SQLException ex) {
-								ex.printStackTrace();
-							}
-					}
-
-				}
-			});
+			updateData();
+			
 
 			//adds a header to remain visible wherever the user is scrolled to in the table
 			JTableHeader header = dataTable.getTableHeader();
