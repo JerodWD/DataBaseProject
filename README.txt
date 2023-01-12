@@ -1,7 +1,7 @@
 *******************************************************************************
 DatabaseProject
 
-I made this project in my Database class in college. I used JavaFX and MongoDB;
+I made this project in my Database class in college. I used JavaFX and MariaDB;
 this programs' database holds airport flight information and allows the user to
 modify this with a UI.
 *******************************************************************************
