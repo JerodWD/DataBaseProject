@@ -26,7 +26,7 @@ Final Project -> insertNew
 	This is just a class that belongs in the 'Runner.java' (should be on line 520)
 
 *******************************************************************************
-To Run this program, you have ot set up a local host with MongoDB. Leave both
+To Run this program, you have ot set up a local host with MariaDB. Leave both
 as 'root' and 'root' for the names (this is how the connection string is set up
 in the Runner.java. Now insert the SQL code fom FlightDatabase.sql and run. 
 Start up the Runner.java (with the local host MongoDB running). 
